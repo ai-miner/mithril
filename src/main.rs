@@ -24,7 +24,7 @@ use std::time::Duration;
 use bandit::MultiArmedBandit;
 
 #[derive(Debug, PartialEq)]
-enum MainLoopExit {
+enum MainLoopExit { 
     DrawNewBanditArm,
     DonationHashing,
 }
