@@ -1,0 +1,53 @@
+name: CI
+
+on: 
+   push:
+      branches:
+         # - "**"
+         - "master"
+env:
+  Version: "0.2.0"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: 
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      #- name: Checkout dawn
+      #  uses: actions/checkout@v3
+      #  with:
+      #    repository: vmxy/dawn 
+      #    #ref: bae8c688fe96d7fd07136d05b4a6931e9e6ead4d
+      #    path: dawn
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+
+      - name: Install Nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      - name: Build
+        run: |
+          cargo build --release
+
+      # upload
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-${{ matrix.os }}
+          path: target/release
+
