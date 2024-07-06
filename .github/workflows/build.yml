@@ -34,14 +34,23 @@ jobs:
         with:
           node-version: '16.x'
 
-      - name: Install Nightly
+      - name: install cargo - linux/macos
+        if: matrix.os != 'window-latest'
+        run: |
+          curl -sSf https://static.rust-lang.org/rustup.sh | sh
+          rustup component list
+      
+      - name: install cargo - window
+        if: matrix.os == 'window-latest'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           override: true
+          default: true
 
       - name: Build
         run: |
+          cargo update ahash
           cargo build --release
 
       # upload
