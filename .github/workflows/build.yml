@@ -59,8 +59,7 @@ jobs:
 
       - name: Build
         run: |
-          rustup install nightly
-          cargo +nightly install racer
+          # rustup install nightly
           cargo update ahash
           cargo build --release
 
