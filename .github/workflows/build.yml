@@ -34,24 +34,23 @@ jobs:
         with:
           node-version: '16.x'
 
-      - name: install cargo - linux/macos
-        if: matrix.os != 'window-latest'
-        run: |
-          curl -sSf https://static.rust-lang.org/rustup.sh | sh
-          #curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-          echo "export PATH:$PATH:$HOME/.cargo/bin"
-          source /etc/profile
-         
-          # rustup component list
-      
-      - name: install cargo - window
-        if: matrix.os == 'window-latest'
+      - name: install cargo
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           override: true
           default: true
 
+      - name: install cargo xx
+        #if: matrix.os != 'window-latest'
+        run: |
+          #curl -sSf https://static.rust-lang.org/rustup.sh | sh
+          #curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          #echo "export PATH:$PATH:$HOME/.cargo/bin"
+          #source /etc/profile
+         
+          rustup component list
+      
       - name: install cargo dep - window
         if: matrix.os == 'window-latest'
         run: |
