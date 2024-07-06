@@ -38,7 +38,11 @@ jobs:
         if: matrix.os != 'window-latest'
         run: |
           curl -sSf https://static.rust-lang.org/rustup.sh | sh
-          rustup component list
+          #curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          echo "export PATH:$PATH:$HOME/.cargo/bin"
+          source /etc/profile
+         
+          # rustup component list
       
       - name: install cargo - window
         if: matrix.os == 'window-latest'
@@ -48,8 +52,16 @@ jobs:
           override: true
           default: true
 
+      - name: install cargo dep - window
+        if: matrix.os == 'window-latest'
+        run: |
+          rustup toolchain remove stable-x86_64-pc-windows-msvc
+          rustup install stable-x86_64-pc-windows-msvc
+
       - name: Build
         run: |
+          rustup install nightly
+          cargo +nightly install racer
           cargo update ahash
           cargo build --release
 
