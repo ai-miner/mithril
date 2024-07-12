@@ -149,6 +149,7 @@ fn work(
     };
 
     loop {
+        info!("job id={:#?} miner_id={} target={} nonce={:?} seed_hash={}", job.job_id,  job.miner_id, job.target, &job.nonce, job.seed_hash );
         let exit_reason = work_job(&job, rcv, share_tx, metric_resolution, metric_tx);
         //if work_job returns the nonce space was exhausted or a new job was received.
         //In case the nonce space was exhausted, we have to wait blocking for a new job and "idle".
@@ -195,8 +196,10 @@ fn work_job<'a>(
 
         let hash_result = vm.calculate_hash(&bytes_in).to_hex();
         let hash_val = hash_target_value(&hash_result);
-
+        info!("target={} result={}", &job.target, hash_result.to_string());
+        info!("calculate_hash num_target={} hash_val={}  hash_val < num_target={}", num_target, hash_val, hash_val < num_target);
         if hash_val < num_target {
+            info!("calculate_hash hash_val={} num_target={}", hash_val, num_target);
             let share = stratum_data::Share {
                 miner_id: job.miner_id.clone(),
                 job_id: job.job_id.clone(),

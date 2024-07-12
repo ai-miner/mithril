@@ -17,6 +17,7 @@ use mithril::worker::worker_pool;
 use mithril::worker::worker_pool::WorkerPool;
 use std::io;
 use std::io::Error;
+use std::io::Write;
 use std::path::Path;
 use std::thread;
 use std::time::Duration;
@@ -24,17 +25,37 @@ use std::time::Duration;
 use bandit::MultiArmedBandit;
 
 #[derive(Debug, PartialEq)]
-enum MainLoopExit { 
+enum MainLoopExit {
     DrawNewBanditArm,
     DonationHashing,
 }
 
 #[allow(clippy::unnecessary_unwrap)]
 fn main() {
-    env_logger::init();
+    //env_logger::init();
+    env_logger::Builder::new()
+        .format(|buf, record| {
+            writeln!(
+                buf.by_ref(),
+                "{} [{}] - {}",
+                chrono::Local::now().format("%Y-%m-%dT%H:%M:%S"),
+                record.level(),
+                record.args()
+            )
+        })
+        .filter(None, log::LevelFilter::Info)
+        .init();
 
+    //log::warn!("warn");
+    //log::info!("info");
+    //log::error!("error");
     //Read config
-    let cwd_path = &format!("{}{}", "./", mithril_config::CONFIG_FILE_NAME);
+    let cwd_path = &format!(
+        "{}/{}",
+        std::env::current_dir().unwrap().display().to_string(),
+        mithril_config::CONFIG_FILE_NAME
+    );
+    println!("config={}", cwd_path);
     let config =
         mithril_config::read_config(Path::new(cwd_path), mithril_config::CONFIG_FILE_NAME).unwrap();
 
@@ -72,7 +93,7 @@ fn main() {
             continue;
         }
         let client = login_result.expect("stratum client");
-        let share_sndr = client.new_cmd_channel();
+        let share_sndr: crossbeam_channel::Sender<mithril::stratum::StratumCmd> = client.new_cmd_channel();
         let (arm, num_threads) = if bandit.is_some() {
             let selected_arm = bandit.as_ref().unwrap().select_arm();
             info!("trying arm with {} #threads", selected_arm.num_threads);
